@@ -2,7 +2,6 @@ import numpy as np
 
 
 def quantization(x, s, z, alpha_q, beta_q):
-
     x_q = np.round(1 / s * x + z, decimals=0)
     x_q = np.clip(x_q, a_min=alpha_q, a_max=beta_q)
 
@@ -10,7 +9,6 @@ def quantization(x, s, z, alpha_q, beta_q):
 
 
 def quantization_int8(x, s, z):
-
     x_q = quantization(x, s, z, alpha_q=-128, beta_q=127)
     x_q = x_q.astype(np.int8)
 
@@ -18,7 +16,6 @@ def quantization_int8(x, s, z):
 
 
 def quantization_uint8(x, s, z):
-
     x_q = quantization(x, s, z, alpha_q=0, beta_q=255)
     x_q = x_q.astype(np.uint8)
 
@@ -26,7 +23,6 @@ def quantization_uint8(x, s, z):
 
 
 def dequantization(x_q, s, z):
-
     # x_q - z might go outside the quantization range
     x_q = x_q.astype(np.int32)
     x = s * (x_q - z)
@@ -36,7 +32,6 @@ def dequantization(x_q, s, z):
 
 
 def generate_quantization_constants(alpha, beta, alpha_q, beta_q):
-
     # Affine quantization mapping
     s = (beta - alpha) / (beta_q - alpha_q)
     z = int((beta * alpha_q - alpha * beta_q) / (beta - alpha))
@@ -45,11 +40,9 @@ def generate_quantization_constants(alpha, beta, alpha_q, beta_q):
 
 
 def generate_quantization_int8_constants(alpha, beta):
-
     b = 8
     alpha_q = -2**(b - 1)
     beta_q = 2**(b - 1) - 1
-
     s, z = generate_quantization_constants(alpha=alpha,
                                            beta=beta,
                                            alpha_q=alpha_q,
@@ -59,11 +52,9 @@ def generate_quantization_int8_constants(alpha, beta):
 
 
 def generate_quantization_uint8_constants(alpha, beta):
-
     b = 8
     alpha_q = 0
     beta_q = 2**(b) - 1
-
     s, z = generate_quantization_constants(alpha=alpha,
                                            beta=beta,
                                            alpha_q=alpha_q,
@@ -73,7 +64,6 @@ def generate_quantization_uint8_constants(alpha, beta):
 
 
 def relu(x, z_x, z_y, k):
-
     x = np.clip(x, a_min=z_x, a_max=None)
     y = z_y + k * (x - z_x)
 
@@ -81,7 +71,6 @@ def relu(x, z_x, z_y, k):
 
 
 def quantization_relu_uint8(x_q, s_x, z_x, s_y, z_y):
-
     y = relu(x=x_q.astype(np.int32), z_x=z_x, z_y=z_y, k=s_x / s_y)
     y = np.round(y, decimals=0)
     y = np.clip(y, a_min=0, a_max=255)
@@ -92,11 +81,9 @@ def quantization_relu_uint8(x_q, s_x, z_x, s_y, z_y):
 
 if __name__ == "__main__":
 
-    # Set random seed for reproducibility
     random_seed = 0
     np.random.seed(random_seed)
 
-    # Random matrices
     m = 2
     n = 4
 
